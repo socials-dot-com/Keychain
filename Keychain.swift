@@ -1042,7 +1042,12 @@ extension Options {
         if let policy = authenticationPolicy {
             if #available(iOS 8.0, OSX 10.10, *) {
                 var error: Unmanaged<CFError>?
-                guard let accessControl = SecAccessControlCreateWithFlags(kCFAllocatorDefault, accessibility.rawValue, SecAccessControlCreateFlags(rawValue: policy.rawValue), &error) else {
+				#if !swift(>=2.3)
+					let accessControlFlags = Int(policy.rawValue)
+				#else
+					let accessControlFlags = UInt(policy.rawValue)
+				#endif
+                guard let accessControl = SecAccessControlCreateWithFlags(kCFAllocatorDefault, accessibility.rawValue, SecAccessControlCreateFlags(rawValue: accessControlFlags), &error) else {
                     if let error = error?.takeUnretainedValue() {
                         return (attributes, error.error)
                     }
